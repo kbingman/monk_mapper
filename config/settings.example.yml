@@ -1,5 +1,8 @@
 defaults: &defaults
   :log_level: warn
+  :mongo:
+    :database: monk_mapper
+    :host: localhost
 
 :development:
   <<: *defaults

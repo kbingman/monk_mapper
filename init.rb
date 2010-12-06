@@ -6,9 +6,8 @@ require 'bundler'
 Bundler.setup
 
 require 'monk/glue'
-# require 'ohm'
-require 'haml'
-require 'sass'   
+require 'mongo_mapper'
+
 
 class Main < Monk::Glue
   set :app_file, __FILE__ 
@@ -16,8 +15,16 @@ class Main < Monk::Glue
   use Rack::Session::Cookie
 end
 
-# Connect to redis database.
-# Ohm.connect(monk_settings(:redis))
+# Connect to mongo database.
+if ENV['MONGOHQ_HOST']
+  puts "Running on MongoHQ" 
+  MongoMapper.config = {RACK_ENV => {'uri' => ENV['MONGOHQ_URL']}}
+  MongoMapper.connect(RACK_ENV)
+else
+  puts "Using local database" 
+  MongoMapper.database = monk_settings(:mongo)[:database]
+  MongoMapper.connection = Mongo::Connection.new(monk_settings(:mongo)[:host], nil, :logger => logger)
+end
 
 # Load all application files.
 Dir[root_path('app/**/*.rb')].each do |file|
